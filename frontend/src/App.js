@@ -1,53 +1,136 @@
 import React, { useState } from 'react';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  TextareaAutosize,
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  FormControl,
+  FormLabel,
+} from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 const App = () => {
-  const [name, setName] = useState('');
-  const [gender, setGender] = useState('');
+  const [ticker, setTicker] = useState('');
+  const [open, setOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('YouTube');
+  const [url, setUrl] = useState('');
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log('Name:', name, 'Gender:', gender);
+  const handleInputChange = (event) => {
+    setTicker(event.target.value);
+  };
+
+  const handleSubmit = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOptionChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
+
+  const handleUrlChange = (event) => {
+    setUrl(event.target.value);
+  };
+
+  const handleUrlSubmit = () => {
+    console.log('URL:', url);
   };
 
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit}
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 2,
-        marginTop: 4,
-      }}
-    >
-      <TextField
-        label="Name"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-        variant="outlined"
-      />
-      <TextField
-        select
-        label="Gender"
-        value={gender}
-        onChange={(event) => setGender(event.target.value)}
-        variant="outlined"
+    <ThemeProvider theme={darkTheme}>
+      <Box
+        sx={{
+          bgcolor: 'background.default',
+          minHeight: '100vh',
+          py: 4,
+        }}
       >
-        <MenuItem value="male">Male</MenuItem>
-        <MenuItem value="female">Female</MenuItem>
-        <MenuItem value="other">Other</MenuItem>
-      </TextField>
-      <Button type="submit" variant="contained" color="primary">
-        Submit
-      </Button>
-    </Box>
-  );
+        <Container maxWidth="sm">
+          <Box sx={{ my: 4 }}>
+            <Typography variant="h3" component="h1" gutterBottom color="text.secondary">
+              Stock Earnings Conference Tracker
+            </Typography>
+            <Typography variant="h5" component="h2" gutterBottom color="text.secondary">
+              Apes Together Strong
+            </Typography>
+            <Box display="flex" justifyContent="space-between" sx={{ mt: 2 }}>
+              <TextField
+                id="ticker-input"
+                label="Ticker Symbol"
+                value={ticker}
+                onChange={handleInputChange}
+                sx={{ flexGrow: 1, mr: 2 }}
+              />
+              <Button variant="contained" color="primary" onClick={handleSubmit}>
+                Send
+              </Button>
+            </Box>
+            <TextareaAutosize
+              aria-label="User input"
+              minRows={10}
+              value={ticker}
+              readOnly
+              style={{ width: '100%', marginTop: '16px' }}
+            />
+          </Box>
+        </Container>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Select an Option</DialogTitle>
+          <DialogContent>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Choose URL type</FormLabel>
+              <RadioGroup
+                aria-label="URL type"
+                value={selectedOption}
+                onChange={handleOptionChange}
+              >
+                <FormControlLabel value="YouTube" control={<Radio />} label="YouTube URL" />
+                <FormControlLabel value="Streaming" control={<Radio />} label="Streaming URL" />
+                <FormControlLabel value="Video" control={<Radio />} label="Video URL" />
+              </RadioGroup>
+            </FormControl>
+            <TextField
+              id="url-input"
+              label="Enter URL"
+              value={url}
+              onChange={handleUrlChange}
+              sx={{
+          mt: 2,
+          width: '100%',
+        }}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleUrlSubmit}
+          sx={{ mt: 2 }}
+        >
+          Submit URL
+        </Button>
+      </DialogContent>
+    </Dialog>
+  </Box>
+</ThemeProvider>
+);
 };
 
 export default App;
+
 
