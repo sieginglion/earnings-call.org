@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台股法說會計畫</title>
+  <style>
+    body {
+      background-color: rgb(10, 10, 10);
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      font-size: large;
+    }
+    #symbol, #search, #transcript {
+      font-size: 20px;
+      outline: none;
+      font-family: sans-serif;
+      width: 100px;
+      text-align: center;
+      border-radius: 5px;
+      border: 0;
+      background-color: rgb(50, 50, 50);
+      color: white;
+    }
+    #search {
+      background-color: #00cf9d;
+      }
+    #search:active {
+      background-color: #00a67e;
+    }
+  </style>
+</head>
+<body>
+  <div id="contribute" style="z-index: 0; position: absolute; top: 10vh; left: 10vw; background-color: rgb(100, 100, 100); height: 80vh; width: 80vw;" hidden>
+    <legend>影片來源</legend>
+    <div style="display: flex; justify-content: center; ">
+      <input type="radio" id="option1" name="options" value="option1">
+      <label for="option1">YouTube Url</label>
+      <div style="width: 20px"></div>
+      <input type="radio" id="option2" name="options" value="option2">
+      <label for="option2">Streaming Url (playlist.m3u8)</label>
+      <div style="width: 20px"></div>
+      <input type="radio" id="option3" name="options" value="option3">
+      <label for="option3">Video Url</label>
+    </div>
+    <input type="url" style="width: 500px; font-size: 20px; outline: none; border-radius: 5px; border: 0;"><br>
+    <label>影片語言</label><br>
+    <select id="language" value="zh" style="width: 200px">
+      <option value="zh">中文</option>
+      <option value="en">英文</option>
+    </select>
+    <button onclick="add()">送出</button>
+  </div>
+  <h1>台股法<span style="font-size: 10px; position: relative; bottom: -2px; right: -2px;">說</span>會計畫</h1>
+  <h2>Apes Together Strong</h2>
+  <div style="display: flex; justify-content: center">
+    <input
+      id="symbol"
+      placeholder="股票代碼"
+      value="2330"
+    />
+    <div style="width: 50px"></div>
+    <button onclick="main()" id="search">搜尋</button>
+  </div>
+  <textarea id="transcript"
+    style="
+      /* width: 100%; */
+      resize: none;
+      margin-top: 40px;
+      height: calc(100vh - 294.5px);
+      width: calc(100vw - 180px);
+      padding: 10px;
+      line-height: 2em;
+      text-align: left;
+    "
+    id="article" disabled
+  ></textarea>
+  <script>
+    let today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let dates = [];
+    for (let i = 90; i >= 0; i--) {
+      let date = new Date(today.getTime());
+      date.setDate(date.getDate() - i);
+      dates.push(date);
+    }
+    let chart;
+    async function main() {
+      alert("尚無資料，幫忙貢獻一下影片連結吧～")
+      document.getElementById('contribute').hidden = false;
+      return
+      let market = document.getElementById("market").value;
+      let symbol = document.getElementById("symbol").value;
+      document.getElementById("article").value = "Running.";
+      let res = await fetch(
+        `http://52.198.155.160:8080/summarize?market=${market}&symbol=${symbol}`
+      );
+      if (!res.ok) {
+        if (market == 't') {
+          alert('尚無資料，幫忙提供連結吧～');
+          return contribute(symbol);
+        }
+        alert(res.statusText);
+        return;
+      }
+      let article = (await res.json()).message;
+      document.getElementById("article").value = article;
+    }
+    async function contribute() {
+      document.getElementById("contribute").hidden = false
+    }
+    async function add() {
+      let symbol = document.getElementById('contri-symbol').value
+      let youtubeUrl = document.getElementById('youtube-url').value
+      let m3u8Url = document.getElementById('m3u8-url').value
+      let videoUrl = document.getElementById('video-url').value
+      let lang = document.getElementById('language').value
+      for (let url of [youtubeUrl, m3u8Url, videoUrl]) {
+        if (url) {
+          await fetch("http://52.198.155.160:8080/add", {
+            method: "POST",
+            body: JSON.stringify({
+              lang,
+              url,
+              symbol
+            }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          alert("感謝！請等 30 分鐘～")
+          break
+        }
+      }
+    }
+  </script>
+</body>
+</html>
